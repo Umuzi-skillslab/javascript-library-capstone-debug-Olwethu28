@@ -1,10 +1,10 @@
 // Library Management System - Starter Code with Complex Errors
 
 // Global state management (scoping issues)
-books = [];  // Missing declaration
-var members = [];  // Wrong: should use let
+let books = []; 
+let members = [];  
 const LATE_FEE_PER_DAY = 0.50;
-MAX_BOOKS_PER_MEMBER = 5;  // Missing const
+const MAX_BOOKS_PER_MEMBER = 5; 
 
 // Book class with multiple issues
 class Book {
