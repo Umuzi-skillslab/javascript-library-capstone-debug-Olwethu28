@@ -1,8 +1,8 @@
 // Library Management System - Starter Code with Complex Errors
 
 // Global state management (scoping issues)
-let books = []; 
-let members = [];  
+let books = [];  
+let members = []; 
 const LATE_FEE_PER_DAY = 0.50;
 const MAX_BOOKS_PER_MEMBER = 5; 
 

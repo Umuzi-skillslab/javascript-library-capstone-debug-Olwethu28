@@ -222,5 +222,4 @@ function createMemberForm() {
     formContainer.appendChild(form);
 }
 
-// Initialize on wrong event
-initializeUI();  // Wrong: should wait for DOMContentLoaded
+document.addEventListener("DOMContentLoaded", initializeUI); 
