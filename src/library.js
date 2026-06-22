@@ -290,7 +290,7 @@ var LibraryStats = {
     }
 
     return popularBook;
-}
+}};
 
 // Function with string manipulation errors
 function formatBookInfo(book) {
