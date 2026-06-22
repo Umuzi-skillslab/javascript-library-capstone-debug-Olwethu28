@@ -13,26 +13,16 @@ class Book {
         this.title = title;
         this.author = author;
         this.year = year;
-        this.availableCopies = copies;
-        this.totalCopies = copies;
+        // Missing: availableCopies and totalCopies properties
         this.checkedOut = [];
     }
-
-    isAvailable(){
-        return this.availableCopies > 0;
-    }
-
-    getInfo(){
-        return `${this.title} by ${this.author} (${this.year})`;
-    }
     
+    // Missing: method to check availability
+    // Missing: method to get book info using template literals
     
     checkOut(memberId) {
-        if(!this.isAvailable()){
-            return false;
-        }
+        // No validation for available copies
         this.checkedOut.push(memberId);
-        this.availableCopies --;
         return true;
     }
 }
@@ -40,7 +30,6 @@ class Book {
 // Digital book class with inheritance problems
 class DigitalBook extends Book {
     constructor(isbn, title, author, year, fileSize, format) {
-        super(isbn, title, author, year, copies);
         // Missing: super() call with correct parameters
         this.fileSize = fileSize;
         this.format = format;
@@ -48,8 +37,8 @@ class DigitalBook extends Book {
     }
     
     download(memberId) {
-        this.downloads++;
-        return `${this.title} downloaded by ${memberId}`;
+        // Should override differently than physical checkout
+        this.downloads = this.downloads + 1;
     }
 }
 
@@ -61,13 +50,7 @@ class Member {
         this.email = email;
         this.membershipType = membershipType;
         this.borrowedBooks = [];
-        this.joinDate = new Date();
-    }
-
-    getMembershipDuration(){
-        const now = new Date();
-        const difference = now - this.joinDate;
-        return Math.floor(difference/ (1000*60*60*24))
+        // Missing: joinDate property
     }
     
     // Missing: method to calculate membership duration
@@ -75,16 +58,10 @@ class Member {
     
     canBorrow() {
         // Wrong comparison operator
-        if (this.borrowedBooks.length < MAX_BOOKS_PER_MEMBER) {
+        if (this.borrowedBooks.length = MAX_BOOKS_PER_MEMBER) {
             return false;
         }
         return true;
-    }
-
-    getMemberInfo() {
-        const { name, email, membershipType } = this;
-
-        return `${name} (${membershipType}) - ${email}`;
     }
 }
 
@@ -92,13 +69,10 @@ class Member {
 class PremiumMember extends Member {
     constructor(id, name, email) {
         super(id, name, email, "premium");
-        this.premiumSince = new Date();
-        this.maxBooks = 10;
+        // Missing: additional premium benefits properties
     }
-
-    canBorrow(){
-        return this.borrowedBooks.length < this.maxBooks;
-    }
+    
+    // Should override canBorrow to allow more books
 }
 
 // Complex function with nested loops and errors
@@ -204,32 +178,6 @@ function updateMemberInfo(member, updates) {
 
 // Function with no error handling
 function borrowBook(memberId, isbn) {
-    try{
-        const member = findMemberById(memberId);
-        const book = findBookByISBN(isbn);
-
-        if(!member || !book){
-            return 'cannot find the member or the book';
-        }
-
-        if(typeof member !== "number"){
-            return 'Please enter 13 numerical digits'
-        }
-        if(!member.canBorrow()){
-            return 'You are not a member, ';
-        }
-
-        if(!book.checkOut(memberId)){
-            return 'The book you are looking for is unavailable';
-        }
-
-        member.borrowedBooks.push(isbn);
-
-        return 'We hope you will enjoy this';
-    }catch(error){
-        console.log("Borrow error: ", error);
-        return false;
-    }
     // Missing: try-catch block
     // Missing: validation for undefined/null
     // Missing: typeof checks
@@ -250,23 +198,23 @@ function borrowBook(memberId, isbn) {
 // Helper functions with errors
 function findMemberById(id) {
     // Should use find method
-    for (let i = 0; i < members.length; i++) {
-        if (members[i].id === id) {
+    for (var i = 0; i < members.length; i++) {
+        if (members[i].id = id) {  // Wrong operator
             return members[i];
         }
     }
-    return null;
+    // Returns undefined implicitly - should handle explicitly
 }
 
 function findBookByISBN(isbn) {
-    let i = 0;
+    var i = 0;
     
     // Wrong loop choice
     while (i < books.length) {
         if (books[i].isbn === isbn) {
             return books[i];
         }
-        i++;
+        i = i + 1;
     }
     
     return null;
