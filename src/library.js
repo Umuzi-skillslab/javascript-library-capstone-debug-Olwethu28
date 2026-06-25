@@ -4,7 +4,6 @@ const isbnMap = new Map();
 const LATE_FEE_PER_DAY = 0.50;
 const MAX_BOOKS_PER_MEMBER = 5; 
 
-//Fixed
 class Book {
     constructor(isbn, title, author, year, copies) {
         this.isbn = isbn;
