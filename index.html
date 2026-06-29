@@ -16,7 +16,7 @@
                 <button id="statistics-tab">Statistics</button>
             </nav>
         </header>
-        
+
         <main>
             <section id="catalogue-section">
                 <div class="controls">
@@ -28,16 +28,10 @@
                         <option value="reference">Reference</option>
                     </select>
                 </div>
-                
-                <div id="catalogue-list" class="book-grid">
-                    <!-- Books rendered here -->
-                </div>
-                
-                <div id="book-details">
-                    <!-- Selected book details -->
-                </div>
+                <div id="catalogue-list" class="book-grid"></div>
+                <div id="book-details"></div>
             </section>
-            
+
             <section id="borrow-section">
                 <h2>Borrow a Book</h2>
                 <form id="borrow-form">
@@ -46,17 +40,13 @@
                     <button type="submit">Borrow Book</button>
                 </form>
             </section>
-            
+
             <section id="member-section" style="display: none;">
                 <h2>Member Management</h2>
-                <div id="member-form">
-                    <!-- Member form rendered here -->
-                </div>
-                <div id="member-list">
-                    <!-- Members list -->
-                </div>
+                <div id="member-form"></div>
+                <div id="member-list"></div>
             </section>
-            
+
             <section id="statistics-section" style="display: none;">
                 <h2>Library Statistics</h2>
                 <div class="stats-grid">
@@ -76,8 +66,9 @@
             </section>
         </main>
     </div>
+
     
-    <script src="library.js"></script>
-    <script src="ui.js"></script>
+    <script src="src/library.js"></script>
+    <script src="src/ui.js"></script>
 </body>
 </html>
