@@ -85,7 +85,7 @@ function handleBorrowSubmit(event) {
     event.preventDefault();                              // FIX: was missing
     const memberIdInput = document.getElementById('member-id');
     const isbnInput = document.getElementById('isbn');
-    const memberId = memberIdInput?.value?.trim();
+    const memberId = parseInt(memberIdInput?.value?.trim(), 10);
     const isbn = isbnInput?.value?.trim();
 
     if (!memberId || !isbn) {
