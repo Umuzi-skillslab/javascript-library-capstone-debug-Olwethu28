@@ -88,9 +88,6 @@ class DigitalBook extends Book {
   }
 }
 
-// ==========================================
-// MEMBER CLASS
-// ==========================================
 class Member {
   constructor(id, name, email) {
     if (typeof id !== 'number' || id <= 0) {
@@ -168,10 +165,6 @@ class Member {
     return returned;
   }
 }
-
-// ==========================================
-// PREMIUM MEMBER CLASS (inherits from Member)
-// ==========================================
 class PremiumMember extends Member {
   constructor(id, name, email) {
     super(id, name, email);
