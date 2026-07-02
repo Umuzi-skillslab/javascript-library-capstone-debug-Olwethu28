@@ -7,9 +7,6 @@ const MAX_BOOKS_PREMIUM = 10;
 const FINE_PER_DAY = 0.50;
 const LOAN_PERIOD_DAYS = 14;
 
-// ==========================================
-// BOOK CLASS
-// ==========================================
 class Book {
   constructor(isbn, title, author, year, copies = 1, category = 'General') {
     // Parameter validation with typeof checks
