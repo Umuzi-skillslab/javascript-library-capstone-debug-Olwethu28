@@ -1,10 +1,3 @@
-// ==========================================
-// LIBRARY MANAGEMENT SYSTEM - Core Logic
-// Demonstrates: classes, inheritance, ES6 modules, Map,
-// destructuring, template literals, spread/rest, some/every,
-// filter, map, reduce, find, for-of, try-catch
-// ==========================================
-
 import { calculateFineAmount, formatBookInfo, searchBooksByCategory, daysBetween } from './utils.js';
 import { saveToLocalStorage, loadFromLocalStorage } from './storage.js';
 
@@ -200,9 +193,6 @@ class PremiumMember extends Member {
   }
 }
 
-// ==========================================
-// LIBRARY CLASS
-// ==========================================
 class Library {
   constructor(name = 'Community Library') {
     this.name = name;
@@ -416,7 +406,7 @@ class Library {
     return this.books.every(book => book.availableCopies > 0);
   }
 
-  // Get overdue books with fines using map + filter
+  // Get overdue books with fines using map and filter
   getOverdueBooks() {
     const now = new Date();
     return this.borrowedBooks
@@ -491,9 +481,6 @@ class Library {
   }
 }
 
-// ==========================================
-// LIBRARY STATS OBJECT
-// ==========================================
 const LibraryStats = {
   // Calculate average using Math.round
   averageBooksPerMember(library) {
@@ -530,7 +517,7 @@ const LibraryStats = {
     };
   },
 
-  // Check if any member maxed out (uses 'some')
+
   hasMaxedOutMembers(library) {
     if (!library) return false;
     return library.members.some(member => !member.canBorrow());
