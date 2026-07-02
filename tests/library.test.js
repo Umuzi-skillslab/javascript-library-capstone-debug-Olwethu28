@@ -1,285 +1,425 @@
-// Jest Tests - Library Management System - Complete
-const {
-    Book, DigitalBook, Member, PremiumMember,
-    findOverdueBooks, processReturnQueue, searchBooksByCategory,
-    getBooksByAuthor, calculateTotalLateFees, combineBookCollections,
-    addMultipleBooks, updateMemberInfo, borrowBook, findMemberById,
-    findBookByISBN, LibraryStats, formatBookInfo, calculateFineAmount,
-    isbnIndex, LATE_FEE_PER_DAY, MAX_BOOKS_PER_MEMBER, MAX_BOOKS_PREMIUM
-} = require('../src/library');
+import {
+    Book,
+    DigitalBook,
+    Member,
+    PremiumMember,
+    Library,
+    LibraryStats,
+    MAX_BOOKS_PER_MEMBER,
+    MAX_BOOKS_PREMIUM
+} from "../src/library.js";
 
-const lib = require('../src/library');
+describe("Book", () => {
 
-beforeEach(() => {
-    lib.books = [];
-    lib.members = [];
-    isbnIndex.clear();
-});
+    test("creates a valid book", () => {
+        const book = new Book(
+            "978123",
+            "JavaScript",
+            "John Doe",
+            2024,
+            5,
+            "Technology"
+        );
 
-// 1. Book Class
-describe('Book Class', () => {
-    test('should create a book with all properties', () => {
-        const book = new Book('978-0-123', 'Test Book', 'Author Name', 2020, 5, 'fiction');
-        expect(book.isbn).toBe('978-0-123');
-        expect(book.title).toBe('Test Book');
+        expect(book.isbn).toBe("978123");
+        expect(book.title).toBe("JavaScript");
+        expect(book.author).toBe("John Doe");
         expect(book.totalCopies).toBe(5);
         expect(book.availableCopies).toBe(5);
-        expect(book.checkedOut).toEqual([]);
+        expect(book.category).toBe("Technology");
     });
-    test('isAvailable returns true when copies exist', () => {
-        expect(new Book('978-0-123', 'T', 'A', 2020, 2).isAvailable()).toBe(true);
+
+    test("throws if ISBN is empty", () => {
+        expect(() => {
+            new Book("", "Book", "Author", 2024);
+        }).toThrow();
     });
-    test('isAvailable returns false when no copies left', () => {
-        const book = new Book('978-0-123', 'T', 'A', 2020, 1);
-        book.checkOut('m1');
+
+    test("book availability", () => {
+        const book = new Book("1", "Book", "Author", 2024, 2);
+
+        expect(book.isAvailable()).toBe(true);
+
+        book.checkOut();
+        book.checkOut();
+
         expect(book.isAvailable()).toBe(false);
     });
-    test('checkOut decrements availableCopies', () => {
-        const book = new Book('978-0-123', 'T', 'A', 2020, 2);
-        expect(book.checkOut('m1')).toBe(true);
+
+    test("checkout reduces copies", () => {
+        const book = new Book("1", "Book", "Author", 2024, 3);
+
+        book.checkOut();
+
+        expect(book.availableCopies).toBe(2);
+    });
+
+    test("return restores copies", () => {
+        const book = new Book("1", "Book", "Author", 2024, 1);
+
+        book.checkOut();
+        book.returnBook();
+
         expect(book.availableCopies).toBe(1);
     });
-    test('checkOut returns false when no copies', () => {
-        expect(new Book('978-0-123', 'T', 'A', 2020, 0).checkOut('m1')).toBe(false);
+
+    test("getInfo returns string", () => {
+        const book = new Book("1", "Book", "Author", 2024, 1);
+
+        expect(typeof book.getInfo()).toBe("string");
     });
-    test('returnBook restores availability', () => {
-        const book = new Book('978-0-123', 'T', 'A', 2020, 1);
-        book.checkOut('m1');
-        book.returnBook('m1');
-        expect(book.availableCopies).toBe(1);
-    });
-    test('getInfo returns formatted string', () => {
-        const info = new Book('978-0-123', 'Test', 'Author', 2020, 3).getInfo();
-        expect(info).toContain('Test');
-        expect(info).toContain('3/3');
-    });
+
 });
 
-// 2. DigitalBook Class
-describe('DigitalBook Class', () => {
-    test('inherits from Book', () => {
-        const ebook = new DigitalBook('978-D-001', 'Digital', 'Auth', 2023, 15, 'PDF');
+describe("DigitalBook", () => {
+
+    test("inherits from Book", () => {
+        const ebook = new DigitalBook(
+            "D1",
+            "Node",
+            "John",
+            2024,
+            1,
+            "Technology",
+            "PDF",
+            20
+        );
+
         expect(ebook).toBeInstanceOf(Book);
     });
-    test('super() sets base properties', () => {
-        const ebook = new DigitalBook('978-D-001', 'Digital', 'Auth', 2023, 15, 'PDF');
-        expect(ebook.isbn).toBe('978-D-001');
-        expect(ebook.fileSize).toBe(15);
+
+    test("always available", () => {
+        const ebook = new DigitalBook(
+            "D1",
+            "Node",
+            "John",
+            2024,
+            1,
+            "Technology"
+        );
+
+        expect(ebook.isAvailable()).toBe(true);
     });
-    test('checkOut increments downloads', () => {
-        const ebook = new DigitalBook('978-D-001', 'D', 'A', 2023, 10, 'EPUB');
-        ebook.checkOut('m1'); ebook.checkOut('m2');
-        expect(ebook.downloads).toBe(2);
+
+    test("download increments counter", () => {
+        const ebook = new DigitalBook(
+            "D1",
+            "Node",
+            "John",
+            2024,
+            1,
+            "Technology"
+        );
+
+        ebook.download();
+        ebook.download();
+
+        expect(ebook.downloadCount).toBe(2);
     });
-    test('getInfo includes format', () => {
-        expect(new DigitalBook('978-D-001', 'D', 'A', 2023, 10, 'EPUB').getInfo()).toContain('EPUB');
-    });
+
 });
 
-// 3. Member Class
-describe('Member Class', () => {
-    test('creates member with joinDate', () => {
-        const m = new Member(1, 'John', 'john@e.com', 'standard');
-        expect(m.joinDate).toBeInstanceOf(Date);
-        expect(m.borrowedBooks).toEqual([]);
+describe("Member", () => {
+
+    test("creates member", () => {
+        const member = new Member(
+            1,
+            "Alice",
+            "alice@test.com"
+        );
+
+        expect(member.borrowedBooks).toEqual([]);
+        expect(member.joinDate).toBeInstanceOf(Date);
     });
-    test('canBorrow true when under limit', () => {
-        expect(new Member(1, 'J', 'j@e.com', 'standard').canBorrow()).toBe(true);
+
+    test("can borrow under limit", () => {
+        const member = new Member(1, "Alice", "a@test.com");
+
+        expect(member.canBorrow()).toBe(true);
     });
-    test('canBorrow false at limit', () => {
-        const m = new Member(1, 'J', 'j@e.com', 'standard');
-        m.borrowedBooks = ['a','b','c','d','e'];
-        expect(m.canBorrow()).toBe(false);
+
+    test("cannot borrow over limit", () => {
+        const member = new Member(1, "Alice", "a@test.com");
+
+        member.borrowedBooks =
+            new Array(MAX_BOOKS_PER_MEMBER).fill({});
+
+        expect(member.canBorrow()).toBe(false);
     });
-    test('getProfile returns destructured object', () => {
-        const p = new Member(1, 'John', 'j@e.com', 'standard').getProfile();
-        expect(p).toEqual({ id:1, name:'John', email:'j@e.com', membershipType:'standard', bookCount:0 });
+
+    test("borrow and return book", () => {
+
+        const member = new Member(1, "Alice", "a@test.com");
+
+        const book = new Book(
+            "1",
+            "JavaScript",
+            "John",
+            2024,
+            2
+        );
+
+        member.borrowBook(book);
+
+        expect(member.borrowedBooks.length).toBe(1);
+        expect(book.availableCopies).toBe(1);
+
+        member.returnBook(book.isbn);
+        book.returnBook();
+
+        expect(member.borrowedBooks.length).toBe(0);
+        expect(book.availableCopies).toBe(2);
     });
-    test('getMembershipDuration returns duration', () => {
-        const d = new Member(1, 'J', 'j@e.com', 'standard').getMembershipDuration();
-        expect(typeof d.days).toBe('number');
-    });
+
 });
 
-// 4. PremiumMember Class
-describe('PremiumMember Class', () => {
-    test('inherits from Member', () => {
-        const pm = new PremiumMember(1, 'Jane', 'jane@e.com');
-        expect(pm).toBeInstanceOf(Member);
-        expect(pm.membershipType).toBe('premium');
+describe("PremiumMember", () => {
+
+    test("inherits Member", () => {
+        const member = new PremiumMember(
+            1,
+            "Jane",
+            "jane@test.com"
+        );
+
+        expect(member).toBeInstanceOf(Member);
     });
-    test('has premium benefits', () => {
-        const pm = new PremiumMember(1, 'Jane', 'jane@e.com');
-        expect(pm.discountRate).toBe(0.1);
+
+    test("premium borrow limit", () => {
+
+        const member = new PremiumMember(
+            1,
+            "Jane",
+            "jane@test.com"
+        );
+
+        member.borrowedBooks =
+            new Array(MAX_BOOKS_PER_MEMBER).fill({});
+
+        expect(member.canBorrow()).toBe(true);
     });
-    test('canBorrow allows more books', () => {
-        const pm = new PremiumMember(1, 'J', 'j@e.com');
-        pm.borrowedBooks = Array(MAX_BOOKS_PER_MEMBER).fill('x');
-        expect(pm.canBorrow()).toBe(true);
+
+    test("cannot exceed premium limit", () => {
+
+        const member = new PremiumMember(
+            1,
+            "Jane",
+            "jane@test.com"
+        );
+
+        member.borrowedBooks =
+            new Array(MAX_BOOKS_PREMIUM).fill({});
+
+        expect(member.canBorrow()).toBe(false);
     });
-    test('canBorrow false at premium limit', () => {
-        const pm = new PremiumMember(1, 'J', 'j@e.com');
-        pm.borrowedBooks = Array(MAX_BOOKS_PREMIUM).fill('x');
-        expect(pm.canBorrow()).toBe(false);
-    });
+
 });
 
-// 5. Library Functions
-describe('Library Functions', () => {
-    let book1, book2, member1;
+describe("Library", () => {
+
+    let library;
+    let member;
+    let book;
+
     beforeEach(() => {
-        book1 = new Book('978-0-001', 'Book One', 'Author A', 2020, 3, 'fiction');
-        book2 = new Book('978-0-002', 'Book Two', 'Author B', 2021, 2, 'non-fiction');
-        member1 = new Member(1, 'Test User', 'test@e.com', 'standard');
-        lib.books = [book1, book2];
-        lib.members = [member1];
-        isbnIndex.set(book1.isbn, book1);
-        isbnIndex.set(book2.isbn, book2);
+
+        library = new Library();
+
+        book = new Book(
+            "111",
+            "JavaScript",
+            "John",
+            2024,
+            1,
+            "Programming"
+        );
+
+        library.addBook(book);
+
+        member = library.addMember(
+            "Alice",
+            "alice@test.com"
+        );
+
     });
-    test('findBookByISBN returns correct book', () => expect(findBookByISBN('978-0-001')).toBe(book1));
-    test('findBookByISBN returns null for unknown', () => expect(findBookByISBN('999')).toBeNull());
-    test('findMemberById returns correct member', () => expect(findMemberById(1)).toBe(member1));
-    test('findMemberById returns null for unknown', () => expect(findMemberById(999)).toBeNull());
-    test('getBooksByAuthor returns matches', () => expect(getBooksByAuthor('Author A')).toHaveLength(1));
-    test('getBooksByAuthor empty for unknown', () => expect(getBooksByAuthor('X')).toEqual([]));
-    test('borrowBook succeeds', () => {
-        expect(borrowBook(1, '978-0-001')).toBe(true);
-        expect(book1.availableCopies).toBe(2);
+
+    test("adds book", () => {
+        expect(library.books.length).toBe(1);
     });
-    test('borrowBook fails for bad member', () => expect(borrowBook(999, '978-0-001')).toBe(false));
-    test('borrowBook fails with null', () => expect(borrowBook(null, '978-0-001')).toBe(false));
+
+    test("findBookByISBN", () => {
+        expect(library.findBookByISBN("111")).toBe(book);
+    });
+
+    test("findMemberById", () => {
+        expect(library.findMemberById(member.id)).toBe(member);
+    });
+
+    test("borrowBook succeeds", () => {
+
+        const result =
+            library.borrowBook(member.id, book.isbn);
+
+        expect(result.success).toBe(true);
+        expect(book.availableCopies).toBe(0);
+    });
+
+    test("returnBook succeeds", () => {
+
+        library.borrowBook(member.id, book.isbn);
+
+        const result =
+            library.returnBook(member.id, book.isbn);
+
+        expect(result.success).toBe(true);
+        expect(book.availableCopies).toBe(1);
+    });
+
+    test("searchBooks", () => {
+
+        const results =
+            library.searchBooks("Java");
+
+        expect(results.length).toBe(1);
+    });
+
+    test("books by author", () => {
+
+        const results =
+            library.getBooksByAuthor("John");
+
+        expect(results.length).toBe(1);
+    });
+
+    test("books by category", () => {
+
+        const results =
+            library.getBooksByCategory("Programming");
+
+        expect(results.length).toBe(1);
+    });
+
+    test("categories", () => {
+
+        expect(library.getCategories())
+            .toContain("Programming");
+    });
+
+    test("combineBookCollections", () => {
+
+        const otherBooks = [
+            new Book(
+                "222",
+                "CSS",
+                "Jane",
+                2023,
+                1,
+                "Programming"
+            )
+        ];
+
+        const combined =
+            library.combineBookCollections(otherBooks);
+
+        expect(combined.length).toBe(2);
+    });
+
+    test("stats", () => {
+
+        const stats = library.getStats();
+
+        expect(stats.totalBooks).toBe(1);
+        expect(stats.totalMembers).toBe(1);
+        expect(stats.totalBorrowed).toBe(0);
+    });
+
+    test("allBooksAvailable", () => {
+        expect(library.allBooksAvailable()).toBe(true);
+        library.borrowBook(member.id, book.isbn);
+        expect(book.availableCopies).toBe(0);
+        expect(library.allBooksAvailable()).toBe(false);
+
+  });
+
+
 });
 
-// 6. Array Operations
-describe('Array Operations', () => {
-    test('combineBookCollections merges', () => {
-        expect(combineBookCollections([1,2],[3,4],[5])).toEqual([1,2,3,4,5]);
-    });
-    test('combineBookCollections variable args', () => {
-        expect(combineBookCollections([1],[2],[3],[4])).toEqual([1,2,3,4]);
-    });
-    test('addMultipleBooks via rest params', () => {
-        addMultipleBooks(new Book('001','A','X',2020,1), new Book('002','B','Y',2021,1));
-        expect(lib.books).toHaveLength(2);
-    });
-    test('calculateTotalLateFees uses reduce', () => {
-        const r = { overdueBooks: [{daysLate:5},{daysLate:10}] };
-        expect(calculateTotalLateFees(r)).toBe(15 * LATE_FEE_PER_DAY);
-    });
-    test('calculateTotalLateFees handles null', () => expect(calculateTotalLateFees(null)).toBe(0));
-});
+describe("LibraryStats", () => {
 
-// 7. Recursive Functions
-describe('Recursive Functions', () => {
-    test('searchBooksByCategory returns matches', () => {
-        const list = [{title:'A',category:'fiction'},{title:'B',category:'nf'},{title:'C',category:'fiction'}];
-        expect(searchBooksByCategory(list, 'fiction')).toHaveLength(2);
-    });
-    test('returns empty for no matches', () => {
-        expect(searchBooksByCategory([{title:'A',category:'fiction'}], 'ref')).toEqual([]);
-    });
-    test('handles null bookList', () => expect(searchBooksByCategory(null, 'fiction')).toEqual([]));
-    test('handles empty list', () => expect(searchBooksByCategory([], 'fiction')).toEqual([]));
-});
+    test("summary", () => {
 
-// 8. Error Handling
-describe('Error Handling', () => {
-    test('borrowBook handles bad member', () => {
-        lib.books = [new Book('001','T','A',2020,1)]; isbnIndex.set('001',lib.books[0]);
-        expect(borrowBook(999,'001')).toBe(false);
-    });
-    test('borrowBook handles bad book', () => {
-        lib.members = [new Member(1,'J','j@e.com','standard')];
-        expect(borrowBook(1,'FAKE')).toBe(false);
-    });
-    test('calculateFineAmount handles NaN', () => expect(calculateFineAmount(NaN)).toBe(0));
-    test('calculateFineAmount handles undefined', () => expect(calculateFineAmount(undefined)).toBe(0));
-    test('calculateFineAmount handles null', () => expect(calculateFineAmount(null)).toBe(0));
-});
+        const library = new Library();
 
-// 9. String Operations
-describe('String Operations', () => {
-    test('formatBookInfo uses template literals', () => {
-        const info = formatBookInfo({title:'  Test  ', author:'  Auth  ', year:2020});
-        expect(info).toContain('Title: TEST');
-    });
-    test('formatBookInfo handles null', () => expect(formatBookInfo(null)).toBe(''));
-});
+        library.addBook(
+            new Book(
+                "1",
+                "JS",
+                "John",
+                2024,
+                2,
+                "Programming"
+            )
+        );
 
-// 10. Math Operations
-describe('Math Operations', () => {
-    test('calculateFineAmount correct value', () => expect(calculateFineAmount(5)).toBe(2.50));
-    test('returns 0 for negative', () => expect(calculateFineAmount(-3)).toBe(0));
-    test('toFixed precision', () => expect(calculateFineAmount(7)).toBe(3.50));
-    test('avg checkouts handles empty', () => {
-        lib.books = [];
-        expect(LibraryStats.getAverageCheckoutsPerBook()).toBe(0);
-    });
-});
+        library.addMember(
+            "Alice",
+            "alice@test.com"
+        );
 
-// 11. Destructuring & Modern JS
-describe('Destructuring & Modern JS', () => {
-    test('updateMemberInfo uses destructuring', () => {
-        const m = new Member(1,'Old','old@e.com','standard');
-        const u = updateMemberInfo(m, {name:'New', email:'new@e.com'});
-        expect(u.name).toBe('New');
-        expect(u.membershipType).toBe('standard');
-    });
-    test('getSummary returns object', () => {
-        const s = LibraryStats.getSummary();
-        expect(s).toHaveProperty('totalBooks');
-    });
-});
+        const summary =
+            LibraryStats.getSummary(library);
 
-// 12. Scope & Constants
-describe('Scope & Constants', () => {
-    test('LATE_FEE_PER_DAY', () => expect(LATE_FEE_PER_DAY).toBe(0.50));
-    test('MAX_BOOKS_PER_MEMBER', () => expect(MAX_BOOKS_PER_MEMBER).toBe(5));
-    test('MAX_BOOKS_PREMIUM > standard', () => expect(MAX_BOOKS_PREMIUM).toBeGreaterThan(MAX_BOOKS_PER_MEMBER));
-});
+        expect(summary.totalBooks).toBe(1);
+        expect(summary.totalMembers).toBe(1);
+    });
 
-// 13. processReturnQueue
-describe('processReturnQueue', () => {
-    test('processes all items (no infinite loop)', () => {
-        const spy = jest.spyOn(console, 'log').mockImplementation();
-        processReturnQueue(['a','b','c']);
-        expect(spy).toHaveBeenCalledTimes(3);
-        spy.mockRestore();
-    });
-    test('handles empty queue', () => {
-        const spy = jest.spyOn(console, 'log').mockImplementation();
-        processReturnQueue([]);
-        expect(spy).not.toHaveBeenCalled();
-        spy.mockRestore();
-    });
-});
+    test("averageBooksPerMember", () => {
 
-// 14. JSON Operations
-describe('JSON Operations', () => {
-    test('round-trip preserves data', () => {
-        const parsed = JSON.parse(JSON.stringify({books:[{isbn:'001'}]}));
-        expect(parsed.books[0].isbn).toBe('001');
-    });
-    test('JSON.parse throws on invalid', () => expect(() => JSON.parse('bad')).toThrow());
-});
+        const library = new Library();
 
-// 15. LibraryStats
-describe('LibraryStats', () => {
-    test('updateStats reflects state', () => {
-        lib.books = [new Book('001','A','X',2020,1)];
-        lib.members = [new Member(1,'J','j@e.com','standard')];
-        LibraryStats.updateStats();
-        expect(LibraryStats.totalBooks).toBe(1);
+        library.addMember(
+            "Alice",
+            "alice@test.com"
+        );
+
+        expect(
+            LibraryStats.averageBooksPerMember(library)
+        ).toBe(0);
     });
-    test('getMostPopularBook works', () => {
-        const b1 = new Book('001','A','X',2020,5);
-        const b2 = new Book('002','B','Y',2021,5);
-        b1.checkOut('m1'); b2.checkOut('m1'); b2.checkOut('m2');
-        lib.books = [b1, b2];
-        expect(LibraryStats.getMostPopularBook()).toBe(b2);
+
+    test("category distribution", () => {
+
+        const library = new Library();
+
+        library.addBook(
+            new Book(
+                "1",
+                "JS",
+                "John",
+                2024,
+                1,
+                "Programming"
+            )
+        );
+
+        const distribution =
+            LibraryStats.getCategoryDistribution(library);
+
+        expect(distribution.Programming).toBe(1);
     });
-    test('getMostPopularBook null when empty', () => {
-        lib.books = [];
-        expect(LibraryStats.getMostPopularBook()).toBeNull();
+
+    test("hasMaxedOutMembers", () => {
+
+        const library = new Library();
+
+        library.addMember(
+            "Alice",
+            "alice@test.com"
+        );
+
+        expect(
+            LibraryStats.hasMaxedOutMembers(library)
+        ).toBe(false);
     });
+
 });

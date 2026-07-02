@@ -547,6 +547,6 @@ export {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     Book, DigitalBook, Member, PremiumMember, Library, LibraryStats,
-    MAX_BOOKS_PER_MEMBER, MAX_BOOKS_PREMIUM, FINE_PER_DAY, LOAN_PERIOD_DAYS
+    MAX_BOOKS_PER_MEMBER, MAX_BOOKS_PREMIUM, FINE_PER_DAY, LOAN_PERIOD_DAYS 
   };
 }
