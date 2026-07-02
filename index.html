@@ -7,68 +7,91 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Digital Library System</h1>
-            <nav>
-                <button id="catalogue-tab">Catalogue</button>
-                <button id="members-tab">Members</button>
-                <button id="statistics-tab">Statistics</button>
-            </nav>
-        </header>
+    <header>
+        <h1>📚 Digital Library System</h1>
+        <p>Community Public Library Platform</p>
+    </header>
 
-        <main>
-            <section id="catalogue-section">
-                <div class="controls">
-                    <input type="text" id="search" placeholder="Search books...">
-                    <select id="filter-category">
-                        <option value="all">All Categories</option>
-                        <option value="fiction">Fiction</option>
-                        <option value="non-fiction">Non-Fiction</option>
-                        <option value="reference">Reference</option>
-                    </select>
-                </div>
-                <div id="catalogue-list" class="book-grid"></div>
-                <div id="book-details"></div>
-            </section>
+    <div id="message-container" class="message" style="display:none;"></div>
 
-            <section id="borrow-section">
-                <h2>Borrow a Book</h2>
-                <form id="borrow-form">
-                    <input type="text" id="member-id" placeholder="Member ID" required>
-                    <input type="text" id="isbn" placeholder="ISBN" required>
-                    <button type="submit">Borrow Book</button>
-                </form>
-            </section>
+    <nav class="tab-navigation">
+        <button class="tab-btn active" data-tab="catalogue">📖 Catalogue</button>
+        <button class="tab-btn" data-tab="members">👥 Members</button>
+        <button class="tab-btn" data-tab="borrow">📋 Borrow</button>
+        <button class="tab-btn" data-tab="return">🔄 Return</button>
+        <button class="tab-btn" data-tab="add-book">➕ Add Book</button>
+        <button class="tab-btn" data-tab="stats">📊 Stats</button>
+    </nav>
 
-            <section id="member-section" style="display: none;">
-                <h2>Member Management</h2>
-                <div id="member-form"></div>
-                <div id="member-list"></div>
-            </section>
+    <main class="container">
 
-            <section id="statistics-section" style="display: none;">
-                <h2>Library Statistics</h2>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <h3>Total Books</h3>
-                        <p class="total-books">0</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Total Members</h3>
-                        <p class="total-members">0</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Books Borrowed</h3>
-                        <p class="books-borrowed">0</p>
-                    </div>
-                </div>
-            </section>
-        </main>
-    </div>
+        <!-- CATALOGUE TAB -->
+        <div id="tab-catalogue" class="tab-content" style="display:block;">
+            <div class="controls">
+                <input type="text" id="search-input" placeholder="Search by title, author, or ISBN...">
+                <select id="filter-category">
+                    <option value="all">All Categories</option>
+                </select>
+            </div>
+            <div id="book-catalogue" class="book-grid"></div>
+        </div>
 
-    
-    <script src="src/library.js"></script>
-    <script src="src/ui.js"></script>
+        <!-- MEMBERS TAB -->
+        <div id="tab-members" class="tab-content" style="display:none;">
+            <h2>Register New Member</h2>
+            <form id="member-form" class="form-container">
+                <input type="text" id="member-name" placeholder="Full Name" required>
+                <input type="email" id="member-email" placeholder="Email Address">
+                <label><input type="checkbox" id="member-premium"> Premium Membership</label>
+                <button type="submit" class="btn">Register Member</button>
+            </form>
+            <div id="member-id-display" class="id-display" style="display:none;"></div>
+            <h2>Registered Members</h2>
+            <div id="members-list"></div>
+        </div>
+
+        <!-- BORROW TAB -->
+        <div id="tab-borrow" class="tab-content" style="display:none;">
+            <h2>Borrow a Book</h2>
+            <form id="borrow-form" class="form-container">
+                <input type="number" id="borrow-member-id" placeholder="Member ID" required>
+                <input type="text" id="borrow-isbn" placeholder="Book ISBN" required>
+                <button type="submit" class="btn">Borrow Book</button>
+            </form>
+        </div>
+
+        <!-- RETURN TAB -->
+        <div id="tab-return" class="tab-content" style="display:none;">
+            <h2>Return a Book</h2>
+            <form id="return-form" class="form-container">
+                <input type="number" id="return-member-id" placeholder="Member ID" required>
+                <input type="text" id="return-isbn" placeholder="Book ISBN" required>
+                <button type="submit" class="btn">Return Book</button>
+            </form>
+        </div>
+
+        <!-- ADD BOOK TAB -->
+        <div id="tab-add-book" class="tab-content" style="display:none;">
+            <h2>Add New Book</h2>
+            <form id="add-book-form" class="form-container">
+                <input type="text" id="add-isbn" placeholder="ISBN" required>
+                <input type="text" id="add-title" placeholder="Title" required>
+                <input type="text" id="add-author" placeholder="Author" required>
+                <input type="number" id="add-year" placeholder="Year" required>
+                <input type="number" id="add-copies" placeholder="Copies" value="1" min="1">
+                <input type="text" id="add-category" placeholder="Category" value="General">
+                <button type="submit" class="btn">Add Book</button>
+            </form>
+        </div>
+
+        <!-- STATS TAB -->
+        <div id="tab-stats" class="tab-content" style="display:none;">
+            <h2>Library Statistics</h2>
+            <div id="stats-container" class="stats-grid"></div>
+        </div>
+
+    </main>
+
+    <script type="module" src="src/ui.js"></script>
 </body>
 </html>
